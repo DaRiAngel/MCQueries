@@ -1,0 +1,36 @@
+SELECT
+	_= "CEP"
+	,cep.event_id
+	,cep.action_type_cd
+	,cep.action_status_cd
+	,ActionPrsnl.name_full_formatted
+	,cep.action_dt_tm "@SHORTDATETIME"
+	,cep.updt_dt_tm "@LONGDATETIME"
+	,cep.updt_task
+	,cep.action_prsnl_ft
+	,cep.action_prsnl_group_id
+	,cep.action_prsnl_id
+	,cep.updt_id
+FROM
+	CE_EVENT_PRSNL CEP
+	,prsnl ActionPrsnl
+WHERE CEP.VALID_UNTIL_DT_TM = CNVTDATETIME("31-DEC-2100")
+	AND cep.action_status_cd NOT IN ( value(uar_get_code_by("MEANING",103,"INERROR")));REFUSED REQUESTED COMPLETED
+	AND cep.action_type_cd IN
+	(
+	 value(uar_get_code_by("MEANING",21,"ORDER"))
+	,value(uar_get_code_by("MEANING",21,"VERIFY"))
+	,value(uar_get_code_by("MEANING",21,"ENDORSE"))
+	;value(uar_get_code_by("MEANING",21,"SIGN"))
+	;value(uar_get_code_by("MEANING",21,"REVIEW"))
+	)
+	AND CEP.EVENT_ID IN ( 0 )
+	and cep.action_prsnl_id = ActionPrsnl.person_id
+ORDER BY
+	cep.event_id
+	,CEP.ACTION_DT_TM
+	,CEP.ACTION_TYPE_CD
+WITH UAR_CODE (D) , TIME = 60, MAXREC = 1000000
+GO
+
+;; addon  select event_id from clinical_event c where order_id in (0)

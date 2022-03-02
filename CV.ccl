@@ -1,0 +1,17 @@
+select
+	_= "CD_VAL"
+	,cv.code_set
+	,cv.code_value
+	,cv.display
+	,cv.display_key
+	;,cv.cdf_meaning ,cv.cki,cv.description ;,cv.definition
+from
+	code_value cv
+where
+	cv.active_ind = 1
+	and cv.code_set in ( 88 )
+	and display_key in ( "**" )
+order by
+	cv.display_key
+	,cv.cdf_meaning
+with format , time = 60 go

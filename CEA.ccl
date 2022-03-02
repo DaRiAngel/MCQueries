@@ -1,0 +1,32 @@
+SELECT
+	_= "CEA"
+	,cea.person_id
+	,cea.encntr_id
+	,cea.EVENT_ID
+	,cea.clinsig_updt_dt_tm "@SHORTDATE"
+	,cea.action_dt_tm "@SHORTDATE"
+	,cea.updt_dt_tm "@SHORTDATE"
+	,cea.action_prsnl_id
+	,ActionPrsnl.name_full_formatted
+	,ActionPrsnl.username
+	,cea.event_cd
+	,cea.action_prsnl_id
+	,cea.action_prsnl_group_id
+	,e.encntr_type_cd
+FROM
+	CE_EVENT_ACTION CEA
+	,prsnl ActionPrsnl
+	,ENCOUNTER e
+WHERE 
+	CEA.action_dt_tm > cnvtlookbehind ("365,D")
+	;AND cea.EVENT_ID IN ( 0 )
+	;AND cea.ACTION_PRSNL_ID in ( 0 )
+	;AND cea.ACTION_PRSNL_GROUP_ID in ( 0 )
+
+	AND ACTIONPRSNL.PERSON_ID = CEA.ACTION_PRSNL_ID
+	AND E.ENCNTR_ID = CEA.ENCNTR_ID
+ORDER BY
+	CEA.PERSON_ID
+	,CEA.PARENT_EVENT_ID
+	,CEA.ACTION_DT_TM
+WITH UAR_CODE (D), TIME = 15, MAXREC = 1000000 GO
