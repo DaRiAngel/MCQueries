@@ -1,0 +1,38 @@
+SELECT
+	_="OA"
+	,oa.order_id
+	,sequence = oa.action_sequence'##'
+	,action = oa.action_dt_tm "@SHORTDATETIME"
+	,udpate = oa.updt_dt_tm "@SHORTDATETIME"
+	,ORDER_PROV_ID = ordering.username
+	,ACTION_PRSNL_ID =entering.username
+	,app_descr = a.description
+	,action = uar_get_code_display(oa.action_type_cd ) '##########'
+	,status = uar_get_code_display(oa.order_status_cd) '##########'
+	,dept_status = uar_get_code_display(oa.dept_status_cd)
+	,oa.updt_id
+	,oa.updt_task
+FROM
+	ORDER_ACTION OA
+	,code_value cv
+	,application a
+	,application_task at
+	,prsnl entering
+	,prsnl ordering
+WHERE
+	oa.updt_dt_tm > CNVTLOOKBEHIND("14, D")
+
+	AND OA.ORDER_ID in ( 0 )
+
+;and oa.action_type_cd = value(uar_get_code_by("MEANING",6003,"COMPLETE"))
+;and oa.order_status_cd = value(uar_get_code_by("MEANING",6004,"COMPLETED"))
+;and oa.dept_status_cd = value(uar_get_code_by("MEANING",14281,"COMPLETED"))
+
+and oa.action_type_cd = cv.code_value
+and oa.order_app_nbr = a.application_number
+and oa.updt_task = at.task_number
+and oa.action_personnel_id = entering.person_id
+and oa.order_provider_id = ordering.person_id
+ORDER BY OA.ORDER_ID, oa.action_dt_tm
+WITH FORMAT(DATE, ";;Q"), TIME = 10
+GO

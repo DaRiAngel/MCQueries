@@ -1,0 +1,28 @@
+/*  OEN_TXLOG & ESI_LOG  */
+SELECT
+esi.event_id
+,esi.queue_id
+,esi.updt_dt_tm "@SHORTDATETIME"
+,esi.updt_id
+,esi.updt_task
+,esi.contributor_system_cd
+,UPDATE_BY=pr.name_full_formatted
+,o.msg_text
+FROM OEN_TXLOG O
+    ,ESI_LOG ESI
+    ,person pt
+    ,prsnl pr
+WHERE ESI.EVENT_ID IN
+(
+
+)
+AND ESI.TX_KEY = O.TX_KEY
+AND pt.person_id = esi.person_id
+AND pr.person_id = esi.updt_id
+ORDER BY esi.updt_dt_tm
+WITH UAR_CODE (D) , TIME = 15, MAXREC = 1000000
+GO
+
+
+;SELECT parent_event_id FROM clinical_event WHERE order_id IN ( feedme )
+;si_peek table:oen id:#QUEUE_ID#|
