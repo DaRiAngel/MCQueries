@@ -1,0 +1,37 @@
+select	_="CECEPAudit"
+	,ce.order_id
+	,ce.parent_event_id
+	,ce.event_id
+	,ce.event_cd
+	,ce.event_reltn_cd
+	,ce.event_class_cd
+	, cep.action_dt_tm "@SHORTDATETIME"
+	, action_prsnl_id = p.name_full_formatted
+	, cep.action_prsnl_id
+	, cep.updt_id
+	, cep.updt_dt_tm "@SHORTDATETIME"
+	, cep.action_status_cd
+	, cep.action_type_cd
+	;,cep.action_prsnl_ft
+	;,ea.alias
+FROM
+CLINICAL_EVENT CE
+,ENCNTR_ALIAS EA
+,CE_EVENT_PRSNL CEP
+,PRSNL P
+PLAN CE WHERE
+ce.performed_dt_tm > cnvtlookbehind("2,M")
+JOIN EA WHERE ea.encntr_id = ce.encntr_id
+JOIN C WHERE  cep.event_id = ce.event_id 
+AND cep.action_status_cd NOT IN ( value(uar_get_code_by("MEANING",103,"INERROR")));REFUSED REQUESTED COMPLETED
+AND	cep.action_type_cd IN
+	(
+	 value(uar_get_code_by("MEANING",21,"ORDER"))	,value(uar_get_code_by("MEANING",21,"VERIFY"))
+	,value(uar_get_code_by("MEANING",21,"ENDORSE"))
+	,value(uar_get_code_by("MEANING",21,"SIGN")) ,value(uar_get_code_by("MEANING",21,"REVIEW"))
+	)
+
+JOIN P WHERE p.person_id = cep.action_prsnl_id
+ORDER BY ce.event_id, cep.action_dt_tm , cep.valid_until_dt_tm
+WITH UAR_CODE (D) , TIME = 60, MAXREC = 100000
+GO
